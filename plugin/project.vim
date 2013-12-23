@@ -134,7 +134,7 @@ silent! execute "cd " . g:base_dir
 
 "Only load the script once
 if !exists("g:project_script") || g:project_script == 0
-	echo "loading project.vim"
+"	echo "loading project.vim"
 	let g:project_script = 1
 else
 	echo "project.vim has been loaded."
@@ -192,7 +192,7 @@ let g:cscope_cmd = "!cscope -b -q -k -i "
 "     START PROJECT FUNCTIONS AND VARIABLES, This will overlap your vimrc file
 "--------------------------------------------------------------------
 func! Init_environment()
-	" π”√ø’∏Ò¿¥Ã¯◊™
+	"‰ΩøÁî®Á©∫Ê†ºÊù•Ë∑≥ËΩ¨
 	noremap <space> <C-]>zz
 	noremap <m-q> <C-W>c
 	noremap <C-S> :w<CR>
@@ -212,7 +212,7 @@ func! Init_environment()
 	let g:Tlist_Show_One_File = 1
 	let g:Tlist_Exit_OnlyWindow = 1
 	nmap <F9> :TlistToggle<CR>
-
+	"nmap <F9> :TagbarToggle<CR>
 	"Cscope Setting, remove something from vim advice...
 	if has("cscope")
 		set csprg=cscope
@@ -383,9 +383,29 @@ endfunc
 func! Get_project_files(project_base_dir)
 	if a:project_base_dir != ''
 		echo "Searching in the project directory for source files..."
-		let filelist = expand(a:project_base_dir . '/**/*.[ch]')
-		let file_list = split(filelist, "\n")
-		" TODO try to confirm the file's permission
+	"	let filelist = expand(a:project_base_dir . '/**/*.[ch]')
+	        let  c=expand(a:project_base_dir . '/**/*.[ch]')
+"		echo a:project_base_dir
+		let  listc=split(c,"\n")
+"		echo listc
+	        let  cc= expand(a:project_base_dir . '/**/*.cc')
+		let  listcc=split(cc,"\n")
+"		echo listcc
+	        let  cpp= expand(a:project_base_dir . '/**/*.cpp')
+		let  listcpp=split(cpp,"\n")
+"		echo listcpp
+		let  file_list=extend(listc,listcc)
+		let  file_list=extend(listcpp,file_list)
+
+	        let  s= expand(a:project_base_dir . '/**/*.mm')
+		let  l=split(s,"\n")
+		let  file_list=extend(l,file_list)
+
+	        let  s= expand(a:project_base_dir . '/**/*.m')
+		let  l=split(s,"\n")
+		let  file_list=extend(l,file_list)
+
+"		echo file_list
 		return file_list
 	else
 		return []
@@ -399,7 +419,7 @@ fun! Update_project(project_base_dir)
 		let pwd = getcwd()
 		let files = g:files_list
 		silent! execute "cd " . a:project_base_dir
-		let filelist = Get_project_files('.')
+		let filelist = Get_project_files(pwd)
 		"Add all files to buffer list
 		"call Project_buffer_add(a:project_base_dir, files)
 		"setlocal noautochdir
@@ -548,14 +568,14 @@ func! Init_project()
 			let g:cscope_loaded = 1
 		endif
 	else
-		call Update_project(g:base_dir)
+"		call Update_project(g:base_dir)
 	endif
 
 	if filereadable(g:files_list)
 		"call Project_buffer_add(g:base_dir, g:files_list)
 	endif
 	if !filereadable(g:tags_file)
-		call CTAGS_FILES(g:base_dir, g:files_list)
+		"call CTAGS_FILES(g:base_dir, g:files_list)
 	endif
 	echo "Successful to open the project!"
 endfunc
