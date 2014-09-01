@@ -397,14 +397,21 @@ func! Get_project_files(project_base_dir)
 		let  file_list=extend(listc,listcc)
 		let  file_list=extend(listcpp,file_list)
 
-	        let  s= expand(a:project_base_dir . '/**/*.mm')
+	    let  s= expand(a:project_base_dir . '/**/*.mm')
 		let  l=split(s,"\n")
 		let  file_list=extend(l,file_list)
 
-	        let  s= expand(a:project_base_dir . '/**/*.m')
+	    let  s= expand(a:project_base_dir . '/**/*.m')
 		let  l=split(s,"\n")
 		let  file_list=extend(l,file_list)
 
+	    let  s= expand(a:project_base_dir . '/**/*.java')
+		let  l=split(s,"\n")
+		let  file_list=extend(l,file_list)
+
+	    let  s= expand(a:project_base_dir . '/**/*.py')
+		let  l=split(s,"\n")
+		let  file_list=extend(l,file_list)
 "		echo file_list
 		return file_list
 	else
