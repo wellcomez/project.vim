@@ -409,6 +409,10 @@ func! Get_project_files(project_base_dir)
 		let  l=split(s,"\n")
 		let  file_list=extend(l,file_list)
 
+	    let  s= expand(a:project_base_dir . '/**/*.js')
+		let  l=split(s,"\n")
+		let  file_list=extend(l,file_list)
+
 	    let  s= expand(a:project_base_dir . '/**/*.py')
 		let  l=split(s,"\n")
 		let  file_list=extend(l,file_list)
