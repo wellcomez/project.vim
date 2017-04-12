@@ -146,8 +146,9 @@ let g:initialized = 0
 
 "/ is common used
 let g:cscope_file = g:base_dir . "/cscope.out"
+let g:gtags_file= g:base_dir . "/GTAGS"
 let g:lines_count_file = g:base_dir . "/lines_count.txt"
-let g:files_list = g:base_dir . "/files.list"
+let g:files_list = g:base_dir . "/gtags.files"
 
 " tags files contains some information about completion
 let g:tags_file = g:base_dir . "/tags"
@@ -184,7 +185,8 @@ endif
 
 silent! execute "set tags+=" . g:tags_file
 
-let s:tags_cmd = "!ctags -L " . g:files_list . " --c++-kinds=+p --fields=+iaS --extra=+q -f " . g:tags_file
+"let s:tags_cmd = "!ctags -L " . g:files_list . " --c++-kinds=+p --fields=+iaS --extra=+q -f " . g:tags_file
+let s:tags_cmd = "!gtags" 
 let g:cscope_cmd = "!cscope -b -q -k -i "
 
 
@@ -211,7 +213,7 @@ func! Init_environment()
 	let g:Tlist_Use_Right_Window=1
 	let g:Tlist_Show_One_File = 1
 	let g:Tlist_Exit_OnlyWindow = 1
-	nmap <F9> :TlistToggle<CR>
+	"nmap <F9> :TlistToggle<CR>
 	"nmap <F9> :TagbarToggle<CR>
 	"Cscope Setting, remove something from vim advice...
 	if has("cscope")
@@ -244,7 +246,7 @@ func! Init_environment()
 	nmap -d :cs find d 
 
 	"set cursorline
-	set autochdir
+	"set autochdir
 	set number
 	set ruler
 	set hlsearch
@@ -256,7 +258,7 @@ func! Init_environment()
 	syntax on
 	set showcmd
 	set notimeout
-	set autochdir
+	"set autochdir
 	set hlsearch
 	set incsearch
 	filetype on
@@ -353,6 +355,7 @@ func! CSCOPE_FILES(project_base_dir, files_list)
 			"	call delete(g:cscope_file)
 			"endif
 			echo "Building cscope.out..."
+		    echo "Success to lines! See " . g:cscope_file. "!"
 			"silent! execute g:cscope_cmd . a:files_list
 			" In windows, -q seems do nothing..., try to use it under
 			" linux
@@ -397,6 +400,10 @@ func! Get_project_files(project_base_dir)
 		let  file_list=extend(listc,listcc)
 		let  file_list=extend(listcpp,file_list)
 
+	    let  s= expand(a:project_base_dir . '/**/*.xml')
+		let  l=split(s,"\n")
+		let  file_list=extend(l,file_list)
+
 	    let  s= expand(a:project_base_dir . '/**/*.mm')
 		let  l=split(s,"\n")
 		let  file_list=extend(l,file_list)
@@ -406,10 +413,6 @@ func! Get_project_files(project_base_dir)
 		let  file_list=extend(l,file_list)
 
 	    let  s= expand(a:project_base_dir . '/**/*.java')
-		let  l=split(s,"\n")
-		let  file_list=extend(l,file_list)
-
-	    let  s= expand(a:project_base_dir . '/**/*.js')
 		let  l=split(s,"\n")
 		let  file_list=extend(l,file_list)
 
@@ -447,6 +450,8 @@ fun! Update_project(project_base_dir)
 				echo "Update project successfully!"
 			else
 				execute "cs add " . g:cscope_file . " " . g:base_dir
+				execute "cs add " . g:gtags_file. " " . g:base_dir
+				echo  "cs add " . g:cscope_file . " " . g:base_dir
 				let g:cscope_loaded = 1
 			endif
 			silent! execute "cs reset"
@@ -586,7 +591,7 @@ func! Init_project()
 		"call Project_buffer_add(g:base_dir, g:files_list)
 	endif
 	if !filereadable(g:tags_file)
-		"call CTAGS_FILES(g:base_dir, g:files_list)
+		call CTAGS_FILES(g:base_dir, g:files_list)
 	endif
 	echo "Successful to open the project!"
 endfunc
