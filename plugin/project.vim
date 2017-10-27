@@ -134,7 +134,7 @@ silent! execute "cd " . g:base_dir
 
 "Only load the script once
 if !exists("g:project_script") || g:project_script == 0
-"	echo "loading project.vim"
+	echo "loading project.vim"
 	let g:project_script = 1
 else
 	echo "project.vim has been loaded."
@@ -148,7 +148,6 @@ let g:initialized = 0
 let g:cscope_file = g:base_dir . "/cscope.out"
 let g:lines_count_file = g:base_dir . "/lines_count.txt"
 let g:files_list = g:base_dir . "/files.list"
-let g:gtag_files_list = g:base_dir . "/gtags.files"
 
 " tags files contains some information about completion
 let g:tags_file = g:base_dir . "/tags"
@@ -185,17 +184,17 @@ endif
 
 silent! execute "set tags+=" . g:tags_file
 
-let s:tags_cmd = "!ctags -L " . g:files_list . " --c++-kinds=+p --fields=+iaS --extra=+q -f " . g:tags_file
-let s:gtags_cmd = "!gtags "
-"let g:cscope_cmd = "!cscope -b -q -k -i "
-let g:cscope_cmd = ""
+"let s:tags_cmd = "!ctags -L " . g:files_list . " --c++-kinds=+p --fields=+iaS --extra=+q -f " . g:tags_file
+let s:tags_cmd = "!gtags --file " . g:files_list 
+lef g:tags_file = GTAGS
+let g:cscope_cmd = "!cscope -b -q -k -i "
 
 
 "--------------------------------------------------------------------
 "     START PROJECT FUNCTIONS AND VARIABLES, This will overlap your vimrc file
 "--------------------------------------------------------------------
 func! Init_environment()
-	"使用空格来跳转
+	"ʹ�ÿո�����ת
 	noremap <space> <C-]>zz
 	noremap <m-q> <C-W>c
 	noremap <C-S> :w<CR>
@@ -214,8 +213,8 @@ func! Init_environment()
 	let g:Tlist_Use_Right_Window=1
 	let g:Tlist_Show_One_File = 1
 	let g:Tlist_Exit_OnlyWindow = 1
-	"nmap <F9> :TlistToggle<CR>
-	nmap <F9> :TagbarToggle<CR>
+	nmap <F9> :TlistToggle<CR>
+
 	"Cscope Setting, remove something from vim advice...
 	if has("cscope")
 		set csprg=cscope
@@ -359,7 +358,7 @@ func! CSCOPE_FILES(project_base_dir, files_list)
 			"silent! execute g:cscope_cmd . a:files_list
 			" In windows, -q seems do nothing..., try to use it under
 			" linux
-			"silent! execute g:cscope_cmd . a:files_list
+			silent! execute g:cscope_cmd . a:files_list
 			echo "Cscope.out has been created!"
 		endif
 	endif
@@ -376,13 +375,11 @@ func! CTAGS_FILES(project_base_dir, files_list)
 		let pwd = getcwd()
 		silent! execute "cd " . a:project_base_dir
 		echo "Building tags..."
-		"silent! execute s:tags_cmd
-		silent! execute s:gtags_cmd
+		silent! execute s:tags_cmd
 		silent! execute "cd " . pwd
 		echo "Tags file has been created!"
 	endif
 endfunc
-
 " Must be not the absolute path
 func! Get_project_files(project_base_dir)
 	if a:project_base_dir != ''
@@ -416,6 +413,7 @@ func! Get_project_files(project_base_dir)
 	endif
 endfunc
 
+
 "Update the project...
 fun! Update_project(project_base_dir)
 	if a:project_base_dir != '' && isdirectory(a:project_base_dir)
@@ -423,12 +421,10 @@ fun! Update_project(project_base_dir)
 		let pwd = getcwd()
 		let files = g:files_list
 		silent! execute "cd " . a:project_base_dir
-		let filelist = Get_project_files(pwd)
+		let filelist = Get_project_files('.')
 		"Add all files to buffer list
 		"call Project_buffer_add(a:project_base_dir, files)
 		"setlocal noautochdir
-        let gtagsfiles = g:gtag_files_list
-        writefile(file_list, gtagsfiles) 
 		if writefile(filelist, files) == 0
 			call CSCOPE_FILES('.', files)
 			call CTAGS_FILES('.', files)
@@ -441,7 +437,7 @@ fun! Update_project(project_base_dir)
 			if g:cscope_loaded == 1
 				echo "Update project successfully!"
 			else
-				"execute "cs add " . g:cscope_file . " " . g:base_dir
+				execute "cs add " . g:cscope_file . " " . g:base_dir
 				let g:cscope_loaded = 1
 			endif
 			silent! execute "cs reset"
@@ -570,18 +566,18 @@ func! Init_project()
 	"Add cscope.out file
 	if filereadable(g:cscope_file)
 		if g:cscope_loaded == 0
-			"silent! execute "cs add " . g:cscope_file . " " . g:base_dir
+			silent! execute "cs add " . g:cscope_file . " " . g:base_dir
 			let g:cscope_loaded = 1
 		endif
 	else
-"		call Update_project(g:base_dir)
+		call Update_project(g:base_dir)
 	endif
 
 	if filereadable(g:files_list)
 		"call Project_buffer_add(g:base_dir, g:files_list)
 	endif
 	if !filereadable(g:tags_file)
-		"call CTAGS_FILES(g:base_dir, g:files_list)
+		call CTAGS_FILES(g:base_dir, g:files_list)
 	endif
 	echo "Successful to open the project!"
 endfunc
@@ -653,7 +649,7 @@ menu Project.Update :silent call Update_project(g:base_dir)<cr>
 menu Project.Clear  :silent call Clear_project()<cr>
 menu Project.Quit   :call Close_project()<cr>
 menu Project.Save   :call Save_project()<cr>
-menu Project.Toggle\ Symbols\ List :TagbarToggle<cr>
+menu Project.Toggle\ Symbols\ List :TlistToggle<cr>
 menu Project.Open\ Project\ Directory :NERDTree <C-R>=g:base_dir<cr><cr>
 menu Project.Open\ Current\ Directory :NERDTree <C-R>=getcwd()<cr><cr>
 menu Project.Count\ Project\ Lines      :call Count_project_lines(g:base_dir, g:files_list)<cr>
